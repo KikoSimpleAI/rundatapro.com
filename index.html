@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RunMetrics Pro - Your Complete Running Companion</title>
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Google Analytics 4 - GDPR Compliant -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Initialize with consent mode
+        gtag('consent', 'default', {
+            'analytics_storage': 'denied',
+            'ad_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'functionality_storage': 'denied',
+            'personalization_storage': 'denied',
+            'security_storage': 'granted'
+        });
+        
+        // Only initialize GA if consent is given
+        if (localStorage.getItem('ga_consent') === 'granted') {
+            gtag('config', 'GA_MEASUREMENT_ID', {
+                anonymize_ip: true,
+                allow_google_signals: false,
+                allow_ad_personalization_signals: false
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>🏃‍♂️ RunMetrics Pro</h1>
+            <p>Your Complete Running Performance Dashboard</p>
+            <p>Track metrics • Predict race times • Optimize training</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('metrics')">📊 Key Metrics</button>
+            <button class="tab-btn" onclick="showTab('predictor')">🎯 Race Predictor</button>
+            <button class="tab-btn" onclick="showTab('pacing')">⚡ Pace Tables</button>
+            <button class="tab-btn" onclick="showTab('training')">💪 Training Zones</button>
+        </div>
+
+        <div id="metrics" class="tab-content active">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #ffd89b;">Essential Running Metrics to Track</h2>
+            <div class="metrics-showcase">
+                <div class="metric-item" onclick="showMetricPopup('pace')">
+                    <div class="icon">⏱️</div>
+                    <h4>Pace</h4>
+                    <p>Current & average pace per mile/km. Most fundamental metric for runners.</p>
+                </div>
+                <div class="metric-item" onclick="showMetricPopup('heartrate')">
+                    <div class="icon">❤️</div>
+                    <h4>Heart Rate</h4>
+                    <p>Training intensity & heart rate zones (50-100% of max HR).</p>
+                </div>
+                <div class="metric-item" onclick="showMetricPopup('cadence')">
+                    <div class="icon">👟</div>
+                    <h4>Cadence</h4>
+                    <p>Steps per minute. Aim for 170-180 SPM for optimal efficiency.</p>
+                </div>
+                <div class="metric-item" onclick="showMetricPopup('mileage')">
+                    <div class="icon">📏</div>
+                    <h4>Weekly Mileage</h4>
+                    <p>Total distance per week. Increase by max 10-15% to prevent injury.</p>
+                </div>
+                <div class="metric-item" onclick="showMetricPopup('vo2max')">
+                    <div class="icon">🫁</div>
+                    <h4>VO2 Max</h4>
+                    <p>Aerobic fitness indicator. Higher = better endurance capacity.</p>
+                </div>
+                <div class="metric-item" onclick="showMetricPopup('rpe')">
+                    <div class="icon">💭</div>
+                    <h4>RPE (1-10)</h4>
+                    <p>Rate of Perceived Exertion. Subjective effort scale.</p>
+                </div>
+                <div class="metric-item" onclick="showMetricPopup('sleep')">
+                    <div class="icon">😴</div>
+                    <h4>Sleep</h4>
+                    <p>7-9 hours nightly. Critical for recovery and performance.</p>
+                </div>
+                <div class="metric-item" onclick="showMetricPopup('groundcontact')">
+                    <div class="icon">⚡</div>
+                    <h4>Ground Contact</h4>
+                    <p>Time foot spends on ground. Lower = more efficient.</p>
+                </div>
+                <div class="metric-item" onclick="showMetricPopup('vertical')">
+                    <div class="icon">📊</div>
+                    <h4>Vertical Oscillation</h4>
+                    <p>Bounce measurement. Less vertical movement = better efficiency.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="predictor" class="tab-content">
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <h3>🎯 Race Time Predictor</h3>
+                    <div class="input-group">
+                        <label>Previous Race Distance</label>
+                        <select id="prevDistance">
+                            <option value="5k">5K</option>
+                            <option value="10k">10K</option>
+                            <option value="half">Half Marathon</option>
+                            <option value="full">Marathon</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Previous Race Time (MM:SS)</label>
+                        <input type="text" id="prevTime" placeholder="e.g. 25:30">
+                    </div>
+                    <div class="input-group">
+                        <label>Target Race Distance</label>
+                        <select id="targetDistance">
+                            <option value="5k">5K</option>
+                            <option value="10k">10K</option>
+                            <option value="half">Half Marathon</option>
+                            <option value="full">Marathon</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="predictRaceTime()">Predict Race Time</button>
+                    <div id="predictionResult" class="results" style="display: none;"></div>
+                </div>
+
+                <div class="metric-card">
+                    <h3>📈 Weekly Mileage Calculator</h3>
+                    <div class="input-group">
+                        <label>Current Weekly Mileage</label>
+                        <input type="number" id="currentMileage" placeholder="e.g. 25">
+                    </div>
+                    <div class="input-group">
+                        <label>Weeks to Goal</label>
+                        <input type="number" id="weeksToGoal" placeholder="e.g. 12">
+                    </div>
+                    <div class="input-group">
+                        <label>Target Weekly Mileage</label>
+                        <input type="number" id="targetMileage" placeholder="e.g. 50">
+                    </div>
+                    <button class="btn" onclick="calculateMileageProgression()">Calculate Progression</button>
+                    <div id="mileageResult" class="results" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pacing" class="tab-content">
+            <div class="metric-card">
+                <h3>⚡ Pace Tables for Common Race Times</h3>
+                
+                <div class="input-group" style="margin-bottom: 30px;">
+                    <label>Select Race Distance</label>
+                    <select id="paceDistanceSelector" onchange="showPaceTable()">
+                        <option value="5k">5K</option>
+                        <option value="10k">10K</option>
+                        <option value="half">Half Marathon</option>
+                        <option value="full">Marathon</option>
+                    </select>
+                </div>
+
+                <!-- 5K Pace Table -->
+                <div id="paceTable-5k" class="pace-table-container">
+                    <h4 style="color: #ffd89b; margin-bottom: 20px;">🏃‍♂️ 5K Pace Table</h4>
+                <table class="pace-table">
+                    <thead>
+                        <tr>
+                            <th>Goal Time</th>
+                            <th>Pace per Mile</th>
+                            <th>Pace per KM</th>
+                            <th>Mile Splits</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr><td>15:00</td><td>4:50</td><td>3:00</td><td>4:50, 9:40, 14:30</td></tr>
+                            <tr><td>15:30</td><td>4:59</td><td>3:06</td><td>4:59, 9:58, 14:57</td></tr>
+                            <tr><td>16:00</td><td>5:08</td><td>3:12</td><td>5:08, 10:16, 15:24</td></tr>
+                            <tr><td>16:30</td><td>5:18</td><td>3:18</td><td>5:18, 10:36, 15:54</td></tr>
+                            <tr><td>17:00</td><td>5:27</td><td>3:24</td><td>5:27, 10:54, 16:21</td></tr>
+                            <tr><td>17:30</td><td>5:37</td><td>3:30</td><td>5:37, 11:14, 16:51</td></tr>
+                            <tr><td>18:00</td><td>5:46</td><td>3:36</td><td>5:46, 11:32, 17:18</td></tr>
+                            <tr><td>18:30</td><td>5:56</td><td>3:42</td><td>5:56, 11:52, 17:48</td></tr>
+                            <tr><td>19:00</td><td>6:05</td><td>3:48</td><td>6:05, 12:10, 18:15</td></tr>
+                            <tr><td>19:30</td><td>6:15</td><td>3:54</td><td>6:15, 12:30, 18:45</td></tr>
+                            <tr><td>20:00</td><td>6:24</td><td>4:00</td><td>6:24, 12:48, 19:12</td></tr>
+                            <tr><td>20:30</td><td>6:34</td><td>4:06</td><td>6:34, 13:08, 19:42</td></tr>
+                            <tr><td>21:00</td><td>6:43</td><td>4:12</td><td>6:43, 13:26, 20:09</td></tr>
+                            <tr><td>21:30</td><td>6:53</td><td>4:18</td><td>6:53, 13:46, 20:39</td></tr>
+                            <tr><td>22:00</td><td>7:02</td><td>4:24</td><td>7:02, 14:04, 21:06</td></tr>
+                            <tr><td>22:30</td><td>7:12</td><td>4:30</td><td>7:12, 14:24, 21:36</td></tr>
+                            <tr><td>23:00</td><td>7:21</td><td>4:36</td><td>7:21, 14:42, 22:03</td></tr>
+                            <tr><td>23:30</td><td>7:31</td><td>4:42</td><td>7:31, 15:02, 22:33</td></tr>
+                            <tr><td>24:00</td><td>7:40</td><td>4:48</td><td>7:40, 15:20, 23:00</td></tr>
+                            <tr><td>24:30</td><td>7:50</td><td>4:54</td><td>7:50, 15:40, 23:30</td></tr>
+                            <tr><td>25:00</td><td>7:59</td><td>5:00</td><td>7:59, 15:58, 23:57</td></tr>
+                            <tr><td>25:30</td><td>8:09</td><td>5:06</td><td>8:09, 16:18, 24:27</td></tr>
+                            <tr><td>26:00</td><td>8:18</td><td>5:12</td><td>8:18, 16:36, 24:54</td></tr>
+                            <tr><td>26:30</td><td>8:28</td><td>5:18</td><td>8:28, 16:56, 25:24</td></tr>
+                            <tr><td>27:00</td><td>8:37</td><td>5:24</td><td>8:37, 17:14, 25:51</td></tr>
+                            <tr><td>27:30</td><td>8:47</td><td>5:30</td><td>8:47, 17:34, 26:21</td></tr>
+                            <tr><td>28:00</td><td>8:56</td><td>5:36</td><td>8:56, 17:52, 26:48</td></tr>
+                            <tr><td>28:30</td><td>9:06</td><td>5:42</td><td>9:06, 18:12, 27:18</td></tr>
+                            <tr><td>29:00</td><td>9:15</td><td>5:48</td><td>9:15, 18:30, 27:45</td></tr>
+                            <tr><td>29:30</td><td>9:25</td><td>5:54</td><td>9:25, 18:50, 28:15</td></tr>
+                            <tr><td>30:00</td><td>9:34</td><td>6:00</td><td>9:34, 19:08, 28:42</td></tr>
+                            <tr><td>30:30</td><td>9:44</td><td>6:06</td><td>9:44, 19:28, 29:12</td></tr>
+                            <tr><td>31:00</td><td>9:53</td><td>6:12</td><td>9:53, 19:46, 29:39</td></tr>
+                            <tr><td>31:30</td><td>10:03</td><td>6:18</td><td>10:03, 20:06, 30:09</td></tr>
+                            <tr><td>32:00</td><td>10:12</td><td>6:24</td><td>10:12, 20:24, 30:36</td></tr>
+                            <tr><td>32:30</td><td>10:22</td><td>6:30</td><td>10:22, 20:44, 31:06</td></tr>
+                            <tr><td>33:00</td><td>10:31</td><td>6:36</td><td>10:31, 21:02, 31:33</td></tr>
+                            <tr><td>33:30</td><td>10:41</td><td>6:42</td><td>10:41, 21:22, 32:03</td></tr>
+                            <tr><td>34:00</td><td>10:50</td><td>6:48</td><td>10:50, 21:40, 32:30</td></tr>
+                            <tr><td>34:30</td><td>11:00</td><td>6:54</td><td>11:00, 22:00, 33:00</td></tr>
+                            <tr><td>35:00</td><td>11:09</td><td>7:00</td><td>11:09, 22:18, 33:27</td></tr>
+                            <tr><td>35:30</td><td>11:19</td><td>7:06</td><td>11:19, 22:38, 33:57</td></tr>
+                            <tr><td>36:00</td><td>11:28</td><td>7:12</td><td>11:28, 22:56, 34:24</td></tr>
+                            <tr><td>36:30</td><td>11:38</td><td>7:18</td><td>11:38, 23:16, 34:54</td></tr>
+                            <tr><td>37:00</td><td>11:47</td><td>7:24</td><td>11:47, 23:34, 35:21</td></tr>
+                            <tr><td>37:30</td><td>11:57</td><td>7:30</td><td>11:57, 23:54, 35:51</td></tr>
+                            <tr><td>38:00</td><td>12:06</td><td>7:36</td><td>12:06, 24:12, 36:18</td></tr>
+                            <tr><td>38:30</td><td>12:16</td><td>7:42</td><td>12:16, 24:32, 36:48</td></tr>
+                            <tr><td>39:00</td><td>12:25</td><td>7:48</td><td>12:25, 24:50, 37:15</td></tr>
+                            <tr><td>39:30</td><td>12:35</td><td>7:54</td><td>12:35, 25:10, 37:45</td></tr>
+                            <tr><td>40:00</td><td>12:44</td><td>8:00</td><td>12:44, 25:28, 38:12</td></tr>
+                            <tr><td>40:30</td><td>12:54</td><td>8:06</td><td>12:54, 25:48, 38:42</td></tr>
+                            <tr><td>41:00</td><td>13:03</td><td>8:12</td><td>13:03, 26:06, 39:09</td></tr>
+                            <tr><td>41:30</td><td>13:13</td><td>8:18</td><td>13:13, 26:26, 39:39</td></tr>
+                            <tr><td>42:00</td><td>13:22</td><td>8:24</td><td>13:22, 26:44, 40:06</td></tr>
+                            <tr><td>42:30</td><td>13:32</td><td>8:30</td><td>13:32, 27:04, 40:36</td></tr>
+                            <tr><td>43:00</td><td>13:41</td><td>8:36</td><td>13:41, 27:22, 41:03</td></tr>
+                            <tr><td>43:30</td><td>13:51</td><td>8:42</td><td>13:51, 27:42, 41:33</td></tr>
+                            <tr><td>44:00</td><td>14:00</td><td>8:48</td><td>14:00, 28:00, 42:00</td></tr>
+                            <tr><td>44:30</td><td>14:10</td><td>8:54</td><td>14:10, 28:20, 42:30</td></tr>
+                            <tr><td>45:00</td><td>14:19</td><td>9:00</td><td>14:19, 28:38, 42:57</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 10K Pace Table -->
+                <div id="paceTable-10k" class="pace-table-container" style="display: none;">
+                    <h4 style="color: #ffd89b; margin-bottom: 20px;">🏃‍♀️ 10K Pace Table</h4>
+                    <table class="pace-table">
+                        <thead>
+                            <tr>
+                                <th>Goal Time</th>
+                                <th>Pace per Mile</th>
+                                <th>Pace per KM</th>
+                                <th>5K Split</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>30:00</td><td>4:50</td><td>3:00</td><td>15:00</td></tr>
+                            <tr><td>31:00</td><td>4:59</td><td>3:06</td><td>15:30</td></tr>
+                            <tr><td>32:00</td><td>5:08</td><td>3:12</td><td>16:00</td></tr>
+                            <tr><td>33:00</td><td>5:18</td><td>3:18</td><td>16:30</td></tr>
+                            <tr><td>34:00</td><td>5:27</td><td>3:24</td><td>17:00</td></tr>
+                            <tr><td>35:00</td><td>5:37</td><td>3:30</td><td>17:30</td></tr>
+                            <tr><td>36:00</td><td>5:46</td><td>3:36</td><td>18:00</td></tr>
+                            <tr><td>37:00</td><td>5:56</td><td>3:42</td><td>18:30</td></tr>
+                            <tr><td>38:00</td><td>6:05</td><td>3:48</td><td>19:00</td></tr>
+                            <tr><td>39:00</td><td>6:15</td><td>3:54</td><td>19:30</td></tr>
+                            <tr><td>40:00</td><td>6:24</td><td>4:00</td><td>20:00</td></tr>
+                            <tr><td>41:00</td><td>6:34</td><td>4:06</td><td>20:30</td></tr>
+                            <tr><td>42:00</td><td>6:43</td><td>4:12</td><td>21:00</td></tr>
+                            <tr><td>43:00</td><td>6:53</td><td>4:18</td><td>21:30</td></tr>
+                            <tr><td>44:00</td><td>7:02</td><td>4:24</td><td>22:00</td></tr>
+                            <tr><td>45:00</td><td>7:12</td><td>4:30</td><td>22:30</td></tr>
+                            <tr><td>46:00</td><td>7:21</td><td>4:36</td><td>23:00</td></tr>
+                            <tr><td>47:00</td><td>7:31</td><td>4:42</td><td>23:30</td></tr>
+                            <tr><td>48:00</td><td>7:40</td><td>4:48</td><td>24:00</td></tr>
+                            <tr><td>49:00</td><td>7:50</td><td>4:54</td><td>24:30</td></tr>
+                            <tr><td>50:00</td><td>7:59</td><td>5:00</td><td>25:00</td></tr>
+                            <tr><td>51:00</td><td>8:09</td><td>5:06</td><td>25:30</td></tr>
+                            <tr><td>52:00</td><td>8:18</td><td>5:12</td><td>26:00</td></tr>
+                            <tr><td>53:00</td><td>8:28</td><td>5:18</td><td>26:30</td></tr>
+                            <tr><td>54:00</td><td>8:37</td><td>5:24</td><td>27:00</td></tr>
+                            <tr><td>55:00</td><td>8:47</td><td>5:30</td><td>27:30</td></tr>
+                            <tr><td>56:00</td><td>8:56</td><td>5:36</td><td>28:00</td></tr>
+                            <tr><td>57:00</td><td>9:06</td><td>5:42</td><td>28:30</td></tr>
+                            <tr><td>58:00</td><td>9:15</td><td>5:48</td><td>29:00</td></tr>
+                            <tr><td>59:00</td><td>9:25</td><td>5:54</td><td>29:30</td></tr>
+                            <tr><td>60:00</td><td>9:34</td><td>6:00</td><td>30:00</td></tr>
+                            <tr><td>61:00</td><td>9:44</td><td>6:06</td><td>30:30</td></tr>
+                            <tr><td>62:00</td><td>9:53</td><td>6:12</td><td>31:00</td></tr>
+                            <tr><td>63:00</td><td>10:03</td><td>6:18</td><td>31:30</td></tr>
+                            <tr><td>64:00</td><td>10:12</td><td>6:24</td><td>32:00</td></tr>
+                            <tr><td>65:00</td><td>10:22</td><td>6:30</td><td>32:30</td></tr>
+                            <tr><td>66:00</td><td>10:31</td><td>6:36</td><td>33:00</td></tr>
+                            <tr><td>67:00</td><td>10:41</td><td>6:42</td><td>33:30</td></tr>
+                            <tr><td>68:00</td><td>10:50</td><td>6:48</td><td>34:00</td></tr>
+                            <tr><td>69:00</td><td>11:00</td><td>6:54</td><td>34:30</td></tr>
+                            <tr><td>70:00</td><td>11:09</td><td>7:00</td><td>35:00</td></tr>
+                            <tr><td>71:00</td><td>11:19</td><td>7:06</td><td>35:30</td></tr>
+                            <tr><td>72:00</td><td>11:28</td><td>7:12</td><td>36:00</td></tr>
+                            <tr><td>73:00</td><td>11:38</td><td>7:18</td><td>36:30</td></tr>
+                            <tr><td>74:00</td><td>11:47</td><td>7:24</td><td>37:00</td></tr>
+                            <tr><td>75:00</td><td>11:57</td><td>7:30</td><td>37:30</td></tr>
+                            <tr><td>76:00</td><td>12:06</td><td>7:36</td><td>38:00</td></tr>
+                            <tr><td>77:00</td><td>12:16</td><td>7:42</td><td>38:30</td></tr>
+                            <tr><td>78:00</td><td>12:25</td><td>7:48</td><td>39:00</td></tr>
+                            <tr><td>79:00</td><td>12:35</td><td>7:54</td><td>39:30</td></tr>
+                            <tr><td>80:00</td><td>12:44</td><td>8:00</td><td>40:00</td></tr>
+                            <tr><td>81:00</td><td>12:54</td><td>8:06</td><td>40:30</td></tr>
+                            <tr><td>82:00</td><td>13:03</td><td>8:12</td><td>41:00</td></tr>
+                            <tr><td>83:00</td><td>13:13</td><td>8:18</td><td>41:30</td></tr>
+                            <tr><td>84:00</td><td>13:22</td><td>8:24</td><td>42:00</td></tr>
+                            <tr><td>85:00</td><td>13:32</td><td>8:30</td><td>42:30</td></tr>
+                            <tr><td>86:00</td><td>13:41</td><td>8:36</td><td>43:00</td></tr>
+                            <tr><td>87:00</td><td>13:51</td><td>8:42</td><td>43:30</td></tr>
+                            <tr><td>88:00</td><td>14:00</td><td>8:48</td><td>44:00</td></tr>
+                            <tr><td>89:00</td><td>14:10</td><td>8:54</td><td>44:30</td></tr>
+                            <tr><td>90:00</td><td>14:19</td><td>9:00</td><td>45:00</td></tr>
+                    </tbody>
+                </table>
+                </div>
+
+                <!-- Half Marathon Pace Table -->
+                <div id="paceTable-half" class="pace-table-container" style="display: none;">
+                    <h4 style="color: #ffd89b; margin-bottom: 20px;">🏃‍♀️ Half Marathon Pace Table</h4>
+                <table class="pace-table">
+                    <thead>
+                        <tr>
+                            <th>Goal Time</th>
+                            <th>Pace per Mile</th>
+                            <th>Pace per KM</th>
+                            <th>10K Split</th>
+                            <th>15K Split</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr><td>1:03:00</td><td>4:50</td><td>3:00</td><td>30:00</td><td>45:00</td></tr>
+                            <tr><td>1:05:00</td><td>4:59</td><td>3:06</td><td>31:00</td><td>46:30</td></tr>
+                            <tr><td>1:07:00</td><td>5:08</td><td>3:12</td><td>32:00</td><td>48:00</td></tr>
+                            <tr><td>1:09:00</td><td>5:18</td><td>3:18</td><td>33:00</td><td>49:30</td></tr>
+                            <tr><td>1:11:00</td><td>5:27</td><td>3:24</td><td>34:00</td><td>51:00</td></tr>
+                            <tr><td>1:13:00</td><td>5:37</td><td>3:30</td><td>35:00</td><td>52:30</td></tr>
+                            <tr><td>1:15:00</td><td>5:46</td><td>3:36</td><td>36:00</td><td>54:00</td></tr>
+                            <tr><td>1:17:00</td><td>5:56</td><td>3:42</td><td>37:00</td><td>55:30</td></tr>
+                            <tr><td>1:19:00</td><td>6:05</td><td>3:48</td><td>38:00</td><td>57:00</td></tr>
+                            <tr><td>1:21:00</td><td>6:15</td><td>3:54</td><td>39:00</td><td>58:30</td></tr>
+                            <tr><td>1:23:00</td><td>6:24</td><td>4:00</td><td>40:00</td><td>1:00:00</td></tr>
+                            <tr><td>1:25:00</td><td>6:34</td><td>4:06</td><td>41:00</td><td>1:01:30</td></tr>
+                            <tr><td>1:27:00</td><td>6:43</td><td>4:12</td><td>42:00</td><td>1:03:00</td></tr>
+                            <tr><td>1:29:00</td><td>6:53</td><td>4:18</td><td>43:00</td><td>1:04:30</td></tr>
+                            <tr><td>1:31:00</td><td>7:02</td><td>4:24</td><td>44:00</td><td>1:06:00</td></tr>
+                            <tr><td>1:33:00</td><td>7:12</td><td>4:30</td><td>45:00</td><td>1:07:30</td></tr>
+                            <tr><td>1:35:00</td><td>7:21</td><td>4:36</td><td>46:00</td><td>1:09:00</td></tr>
+                            <tr><td>1:37:00</td><td>7:31</td><td>4:42</td><td>47:00</td><td>1:10:30</td></tr>
+                            <tr><td>1:39:00</td><td>7:40</td><td>4:48</td><td>48:00</td><td>1:12:00</td></tr>
+                            <tr><td>1:41:00</td><td>7:50</td><td>4:54</td><td>49:00</td><td>1:13:30</td></tr>
+                            <tr><td>1:43:00</td><td>7:59</td><td>5:00</td><td>50:00</td><td>1:15:00</td></tr>
+                            <tr><td>1:45:00</td><td>8:09</td><td>5:06</td><td>51:00</td><td>1:16:30</td></tr>
+                            <tr><td>1:47:00</td><td>8:18</td><td>5:12</td><td>52:00</td><td>1:18:00</td></tr>
+                            <tr><td>1:49:00</td><td>8:28</td><td>5:18</td><td>53:00</td><td>1:19:30</td></tr>
+                            <tr><td>1:51:00</td><td>8:37</td><td>5:24</td><td>54:00</td><td>1:21:00</td></tr>
+                            <tr><td>1:53:00</td><td>8:47</td><td>5:30</td><td>55:00</td><td>1:22:30</td></tr>
+                            <tr><td>1:55:00</td><td>8:56</td><td>5:36</td><td>56:00</td><td>1:24:00</td></tr>
+                            <tr><td>1:57:00</td><td>9:06</td><td>5:42</td><td>57:00</td><td>1:25:30</td></tr>
+                            <tr><td>1:59:00</td><td>9:15</td><td>5:48</td><td>58:00</td><td>1:27:00</td></tr>
+                            <tr><td>2:01:00</td><td>9:25</td><td>5:54</td><td>59:00</td><td>1:28:30</td></tr>
+                            <tr><td>2:03:00</td><td>9:34</td><td>6:00</td><td>1:00:00</td><td>1:30:00</td></tr>
+                            <tr><td>2:05:00</td><td>9:44</td><td>6:06</td><td>1:01:00</td><td>1:31:30</td></tr>
+                            <tr><td>2:07:00</td><td>9:53</td><td>6:12</td><td>1:02:00</td><td>1:33:00</td></tr>
+                            <tr><td>2:09:00</td><td>10:03</td><td>6:18</td><td>1:03:00</td><td>1:34:30</td></tr>
+                            <tr><td>2:11:00</td><td>10:12</td><td>6:24</td><td>1:04:00</td><td>1:36:00</td></tr>
+                            <tr><td>2:13:00</td><td>10:22</td><td>6:30</td><td>1:05:00</td><td>1:37:30</td></tr>
+                            <tr><td>2:15:00</td><td>10:31</td><td>6:36</td><td>1:06:00</td><td>1:39:00</td></tr>
+                            <tr><td>2:17:00</td><td>10:41</td><td>6:42</td><td>1:07:00</td><td>1:40:30</td></tr>
+                            <tr><td>2:19:00</td><td>10:50</td><td>6:48</td><td>1:08:00</td><td>1:42:00</td></tr>
+                            <tr><td>2:21:00</td><td>11:00</td><td>6:54</td><td>1:09:00</td><td>1:43:30</td></tr>
+                            <tr><td>2:23:00</td><td>11:09</td><td>7:00</td><td>1:10:00</td><td>1:45:00</td></tr>
+                            <tr><td>2:25:00</td><td>11:19</td><td>7:06</td><td>1:11:00</td><td>1:46:30</td></tr>
+                            <tr><td>2:27:00</td><td>11:28</td><td>7:12</td><td>1:12:00</td><td>1:48:00</td></tr>
+                            <tr><td>2:29:00</td><td>11:38</td><td>7:18</td><td>1:13:00</td><td>1:49:30</td></tr>
+                            <tr><td>2:31:00</td><td>11:47</td><td>7:24</td><td>1:14:00</td><td>1:51:00</td></tr>
+                            <tr><td>2:33:00</td><td>11:57</td><td>7:30</td><td>1:15:00</td><td>1:52:30</td></tr>
+                            <tr><td>2:35:00</td><td>12:06</td><td>7:36</td><td>1:16:00</td><td>1:54:00</td></tr>
+                            <tr><td>2:37:00</td><td>12:16</td><td>7:42</td><td>1:17:00</td><td>1:55:30</td></tr>
+                            <tr><td>2:39:00</td><td>12:25</td><td>7:48</td><td>1:18:00</td><td>1:57:00</td></tr>
+                            <tr><td>2:41:00</td><td>12:35</td><td>7:54</td><td>1:19:00</td><td>1:58:30</td></tr>
+                            <tr><td>2:43:00</td><td>12:44</td><td>8:00</td><td>1:20:00</td><td>2:00:00</td></tr>
+                            <tr><td>2:45:00</td><td>12:54</td><td>8:06</td><td>1:21:00</td><td>2:01:30</td></tr>
+                            <tr><td>2:47:00</td><td>13:03</td><td>8:12</td><td>1:22:00</td><td>2:03:00</td></tr>
+                            <tr><td>2:49:00</td><td>13:13</td><td>8:18</td><td>1:23:00</td><td>2:04:30</td></tr>
+                            <tr><td>2:51:00</td><td>13:22</td><td>8:24</td><td>1:24:00</td><td>2:06:00</td></tr>
+                            <tr><td>2:53:00</td><td>13:32</td><td>8:30</td><td>1:25:00</td><td>2:07:30</td></tr>
+                            <tr><td>2:55:00</td><td>13:41</td><td>8:36</td><td>1:26:00</td><td>2:09:00</td></tr>
+                            <tr><td>2:57:00</td><td>13:51</td><td>8:42</td><td>1:27:00</td><td>2:10:30</td></tr>
+                            <tr><td>2:59:00</td><td>14:00</td><td>8:48</td><td>1:28:00</td><td>2:12:00</td></tr>
+                            <tr><td>3:01:00</td><td>14:10</td><td>8:54</td><td>1:29:00</td><td>2:13:30</td></tr>
+                            <tr><td>3:03:00</td><td>14:19</td><td>9:00</td><td>1:30:00</td><td>2:15:00</td></tr>
+                    </tbody>
+                </table>
+                </div>
+
+                <!-- Marathon Pace Table -->
+                <div id="paceTable-full" class="pace-table-container" style="display: none;">
+                    <h4 style="color: #ffd89b; margin-bottom: 20px;">🏃‍♂️ Marathon Pace Table</h4>
+                <table class="pace-table">
+                    <thead>
+                        <tr>
+                            <th>Goal Time</th>
+                            <th>Pace per Mile</th>
+                            <th>Pace per KM</th>
+                            <th>10K Split</th>
+                            <th>Half Split</th>
+                            <th>30K Split</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr><td>2:06:00</td><td>4:50</td><td>3:00</td><td>30:00</td><td>1:03:00</td><td>1:29:00</td></tr>
+                            <tr><td>2:10:00</td><td>4:59</td><td>3:06</td><td>31:00</td><td>1:05:00</td><td>1:32:00</td></tr>
+                            <tr><td>2:14:00</td><td>5:08</td><td>3:12</td><td>32:00</td><td>1:07:00</td><td>1:35:00</td></tr>
+                            <tr><td>2:18:00</td><td>5:18</td><td>3:18</td><td>33:00</td><td>1:09:00</td><td>1:38:00</td></tr>
+                            <tr><td>2:22:00</td><td>5:27</td><td>3:24</td><td>34:00</td><td>1:11:00</td><td>1:41:00</td></tr>
+                            <tr><td>2:26:00</td><td>5:37</td><td>3:30</td><td>35:00</td><td>1:13:00</td><td>1:44:00</td></tr>
+                            <tr><td>2:30:00</td><td>5:46</td><td>3:36</td><td>36:00</td><td>1:15:00</td><td>1:47:00</td></tr>
+                            <tr><td>2:34:00</td><td>5:56</td><td>3:42</td><td>37:00</td><td>1:17:00</td><td>1:50:00</td></tr>
+                            <tr><td>2:38:00</td><td>6:05</td><td>3:48</td><td>38:00</td><td>1:19:00</td><td>1:53:00</td></tr>
+                            <tr><td>2:42:00</td><td>6:15</td><td>3:54</td><td>39:00</td><td>1:21:00</td><td>1:56:00</td></tr>
+                            <tr><td>2:46:00</td><td>6:24</td><td>4:00</td><td>40:00</td><td>1:23:00</td><td>1:59:00</td></tr>
+                            <tr><td>2:50:00</td><td>6:34</td><td>4:06</td><td>41:00</td><td>1:25:00</td><td>2:02:00</td></tr>
+                            <tr><td>2:54:00</td><td>6:43</td><td>4:12</td><td>42:00</td><td>1:27:00</td><td>2:05:00</td></tr>
+                            <tr><td>2:58:00</td><td>6:53</td><td>4:18</td><td>43:00</td><td>1:29:00</td><td>2:08:00</td></tr>
+                            <tr><td>3:02:00</td><td>7:02</td><td>4:24</td><td>44:00</td><td>1:31:00</td><td>2:11:00</td></tr>
+                            <tr><td>3:06:00</td><td>7:12</td><td>4:30</td><td>45:00</td><td>1:33:00</td><td>2:14:00</td></tr>
+                            <tr><td>3:10:00</td><td>7:21</td><td>4:36</td><td>46:00</td><td>1:35:00</td><td>2:17:00</td></tr>
+                            <tr><td>3:14:00</td><td>7:31</td><td>4:42</td><td>47:00</td><td>1:37:00</td><td>2:20:00</td></tr>
+                            <tr><td>3:18:00</td><td>7:40</td><td>4:48</td><td>48:00</td><td>1:39:00</td><td>2:23:00</td></tr>
+                            <tr><td>3:22:00</td><td>7:50</td><td>4:54</td><td>49:00</td><td>1:41:00</td><td>2:26:00</td></tr>
+                            <tr><td>3:26:00</td><td>7:59</td><td>5:00</td><td>50:00</td><td>1:43:00</td><td>2:29:00</td></tr>
+                            <tr><td>3:30:00</td><td>8:09</td><td>5:06</td><td>51:00</td><td>1:45:00</td><td>2:32:00</td></tr>
+                            <tr><td>3:34:00</td><td>8:18</td><td>5:12</td><td>52:00</td><td>1:47:00</td><td>2:35:00</td></tr>
+                            <tr><td>3:38:00</td><td>8:28</td><td>5:18</td><td>53:00</td><td>1:49:00</td><td>2:38:00</td></tr>
+                            <tr><td>3:42:00</td><td>8:37</td><td>5:24</td><td>54:00</td><td>1:51:00</td><td>2:41:00</td></tr>
+                            <tr><td>3:46:00</td><td>8:47</td><td>5:30</td><td>55:00</td><td>1:53:00</td><td>2:44:00</td></tr>
+                            <tr><td>3:50:00</td><td>8:56</td><td>5:36</td><td>56:00</td><td>1:55:00</td><td>2:47:00</td></tr>
+                            <tr><td>3:54:00</td><td>9:06</td><td>5:42</td><td>57:00</td><td>1:57:00</td><td>2:50:00</td></tr>
+                            <tr><td>3:58:00</td><td>9:15</td><td>5:48</td><td>58:00</td><td>1:59:00</td><td>2:53:00</td></tr>
+                            <tr><td>4:02:00</td><td>9:25</td><td>5:54</td><td>59:00</td><td>2:01:00</td><td>2:56:00</td></tr>
+                            <tr><td>4:06:00</td><td>9:34</td><td>6:00</td><td>1:00:00</td><td>2:03:00</td><td>2:59:00</td></tr>
+                            <tr><td>4:10:00</td><td>9:44</td><td>6:06</td><td>1:01:00</td><td>2:05:00</td><td>3:02:00</td></tr>
+                            <tr><td>4:14:00</td><td>9:53</td><td>6:12</td><td>1:02:00</td><td>2:07:00</td><td>3:05:00</td></tr>
+                            <tr><td>4:18:00</td><td>10:03</td><td>6:18</td><td>1:03:00</td><td>2:09:00</td><td>3:08:00</td></tr>
+                            <tr><td>4:22:00</td><td>10:12</td><td>6:24</td><td>1:04:00</td><td>2:11:00</td><td>3:11:00</td></tr>
+                            <tr><td>4:26:00</td><td>10:22</td><td>6:30</td><td>1:05:00</td><td>2:13:00</td><td>3:14:00</td></tr>
+                            <tr><td>4:30:00</td><td>10:31</td><td>6:36</td><td>1:06:00</td><td>2:15:00</td><td>3:17:00</td></tr>
+                            <tr><td>4:34:00</td><td>10:41</td><td>6:42</td><td>1:07:00</td><td>2:17:00</td><td>3:20:00</td></tr>
+                            <tr><td>4:38:00</td><td>10:50</td><td>6:48</td><td>1:08:00</td><td>2:19:00</td><td>3:23:00</td></tr>
+                            <tr><td>4:42:00</td><td>11:00</td><td>6:54</td><td>1:09:00</td><td>2:21:00</td><td>3:26:00</td></tr>
+                            <tr><td>4:46:00</td><td>11:09</td><td>7:00</td><td>1:10:00</td><td>2:23:00</td><td>3:29:00</td></tr>
+                            <tr><td>4:50:00</td><td>11:19</td><td>7:06</td><td>1:11:00</td><td>2:25:00</td><td>3:32:00</td></tr>
+                            <tr><td>4:54:00</td><td>11:28</td><td>7:12</td><td>1:12:00</td><td>2:27:00</td><td>3:35:00</td></tr>
+                            <tr><td>4:58:00</td><td>11:38</td><td>7:18</td><td>1:13:00</td><td>2:29:00</td><td>3:38:00</td></tr>
+                            <tr><td>5:02:00</td><td>11:47</td><td>7:24</td><td>1:14:00</td><td>2:31:00</td><td>3:41:00</td></tr>
+                            <tr><td>5:06:00</td><td>11:57</td><td>7:30</td><td>1:15:00</td><td>2:33:00</td><td>3:44:00</td></tr>
+                            <tr><td>5:10:00</td><td>12:06</td><td>7:36</td><td>1:16:00</td><td>2:35:00</td><td>3:47:00</td></tr>
+                            <tr><td>5:14:00</td><td>12:16</td><td>7:42</td><td>1:17:00</td><td>2:37:00</td><td>3:50:00</td></tr>
+                            <tr><td>5:18:00</td><td>12:25</td><td>7:48</td><td>1:18:00</td><td>2:39:00</td><td>3:53:00</td></tr>
+                            <tr><td>5:22:00</td><td>12:35</td><td>7:54</td><td>1:19:00</td><td>2:41:00</td><td>3:56:00</td></tr>
+                            <tr><td>5:26:00</td><td>12:44</td><td>8:00</td><td>1:20:00</td><td>2:43:00</td><td>3:59:00</td></tr>
+                            <tr><td>5:30:00</td><td>12:54</td><td>8:06</td><td>1:21:00</td><td>2:45:00</td><td>4:02:00</td></tr>
+                            <tr><td>5:34:00</td><td>13:03</td><td>8:12</td><td>1:22:00</td><td>2:47:00</td><td>4:05:00</td></tr>
+                            <tr><td>5:38:00</td><td>13:13</td><td>8:18</td><td>1:23:00</td><td>2:49:00</td><td>4:08:00</td></tr>
+                            <tr><td>5:42:00</td><td>13:22</td><td>8:24</td><td>1:24:00</td><td>2:51:00</td><td>4:11:00</td></tr>
+                            <tr><td>5:46:00</td><td>13:32</td><td>8:30</td><td>1:25:00</td><td>2:53:00</td><td>4:14:00</td></tr>
+                            <tr><td>5:50:00</td><td>13:41</td><td>8:36</td><td>1:26:00</td><td>2:55:00</td><td>4:17:00</td></tr>
+                            <tr><td>5:54:00</td><td>13:51</td><td>8:42</td><td>1:27:00</td><td>2:57:00</td><td>4:20:00</td></tr>
+                            <tr><td>5:58:00</td><td>14:00</td><td>8:48</td><td>1:28:00</td><td>2:59:00</td><td>4:23:00</td></tr>
+                            <tr><td>6:02:00</td><td>14:10</td><td>8:54</td><td>1:29:00</td><td>3:01:00</td><td>4:26:00</td></tr>
+                            <tr><td>6:06:00</td><td>14:19</td><td>9:00</td><td>1:30:00</td><td>3:03:00</td><td>4:29:00</td></tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="training" class="tab-content">
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <h3>💓 Heart Rate Zone Calculator</h3>
+                    <div class="input-group">
+                        <label>Age</label>
+                        <input type="number" id="age" placeholder="e.g. 30">
+                    </div>
+                    <div class="input-group">
+                        <label>Resting Heart Rate (optional)</label>
+                        <input type="number" id="restingHR" placeholder="e.g. 60">
+                    </div>
+                    <button class="btn" onclick="calculateHRZones()">Calculate HR Zones</button>
+                    <div id="hrZonesResult" class="training-zones" style="display: none;"></div>
+                </div>
+
+                <div class="metric-card">
+                    <h3>🎯 Training Pace Calculator</h3>
+                    <div class="input-group">
+                        <label>Recent 5K Time (MM:SS)</label>
+                        <input type="text" id="fiveKTime" placeholder="e.g. 25:00">
+                    </div>
+                    <button class="btn" onclick="calculateTrainingPaces()">Calculate Training Paces</button>
+                    <div id="trainingPacesResult" class="training-zones" style="display: none;"></div>
+                </div>
+
+                <div class="metric-card">
+                    <h3>📊 Weekly Training Plan</h3>
+                    <div class="input-group">
+                        <label>Distance Unit</label>
+                        <select id="distanceUnit" onchange="updateDistanceLabel()">
+                            <option value="miles">Miles</option>
+                            <option value="km">Kilometers</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label id="distanceLabel">Target Weekly Mileage</label>
+                        <input type="number" id="weeklyMileage" placeholder="e.g. 40">
+                    </div>
+                    <div class="input-group">
+                        <label>Training Days per Week</label>
+                        <select id="trainingDays">
+                            <option value="3">3 days</option>
+                            <option value="4">4 days</option>
+                            <option value="5">5 days</option>
+                            <option value="6">6 days</option>
+                            <option value="7">7 days</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="generateTrainingPlan()">Generate Plan</button>
+                    <div id="trainingPlanResult" class="results" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🏃‍♂️ RunMetrics Pro - Elevate Your Running Performance</p>
+            <p>Track smarter • Train better • Race faster</p>
+            <footer>
+                <a href="legal-notice.html">Legal Notice / Impressum</a>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Metric Explanation Popup -->
+    <div id="metricPopup" class="popup-overlay" onclick="closeMetricPopup()">
+        <div class="popup-content" onclick="event.stopPropagation()">
+            <div class="popup-header">
+                <h3 id="popupTitle"></h3>
+                <button class="popup-close" onclick="closeMetricPopup()">&times;</button>
+            </div>
+            <div class="popup-body">
+                <div id="popupIcon" class="popup-icon"></div>
+                <div id="popupContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GDPR Cookie Consent Banner -->
+    <div id="cookieConsent" class="cookie-consent" style="display: none;">
+        <div class="cookie-content">
+            <div class="cookie-text">
+                <h4>🍪 Cookie & Privacy Notice</h4>
+                <p>We use Google Analytics to improve our website. This helps us understand how visitors interact with our site while protecting your privacy. Your data is anonymized and we don't share it with third parties.</p>
+                <div class="cookie-details">
+                    <details>
+                        <summary>Learn more about our data practices</summary>
+                        <ul>
+                            <li>We use Google Analytics 4 with IP anonymization</li>
+                            <li>No personal data is collected or stored</li>
+                            <li>Data is used only for website improvement</li>
+                            <li>You can withdraw consent at any time</li>
+                            <li>We comply with GDPR and Austrian data protection laws</li>
+                        </ul>
+                    </details>
+                </div>
+            </div>
+            <div class="cookie-buttons">
+                <button id="acceptCookies" class="cookie-btn accept">Accept Analytics</button>
+                <button id="declineCookies" class="cookie-btn decline">Decline</button>
+                <button id="manageCookies" class="cookie-btn manage">Manage</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cookie Settings Modal -->
+    <div id="cookieSettings" class="cookie-settings" style="display: none;">
+        <div class="cookie-settings-content">
+            <div class="cookie-settings-header">
+                <h3>Cookie Settings</h3>
+                <button id="closeCookieSettings" class="cookie-close">&times;</button>
+            </div>
+            <div class="cookie-settings-body">
+                <div class="cookie-category">
+                    <h4>Essential Cookies</h4>
+                    <p>These cookies are necessary for the website to function and cannot be switched off.</p>
+                    <label class="cookie-switch">
+                        <input type="checkbox" checked disabled>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="cookie-category">
+                    <h4>Analytics Cookies</h4>
+                    <p>These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.</p>
+                    <label class="cookie-switch">
+                        <input type="checkbox" id="analyticsToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="cookie-settings-buttons">
+                    <button id="saveCookieSettings" class="cookie-btn accept">Save Preferences</button>
+                    <button id="acceptAllCookies" class="cookie-btn accept">Accept All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
